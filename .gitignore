@@ -1,10 +1,11 @@
 # Node/JS Dependencies
-frontend-js/node_modules/
+node_modules/
 npm-debug.log
 
 # Java Compiled Files
 *.class
 *.jar
+target/
 
 # IDEs and OS Files
 .idea/
