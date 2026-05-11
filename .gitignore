@@ -1,0 +1,12 @@
+# Node/JS Dependencies
+frontend-js/node_modules/
+npm-debug.log
+
+# Java Compiled Files
+*.class
+*.jar
+
+# IDEs and OS Files
+.idea/
+.vscode/
+.DS_Store
