@@ -2,7 +2,7 @@
 
 > A custom, interactive 8-bit CPU emulator built from scratch using a Java/Spring Boot backend and a modern web frontend.
 
-*(Add a screenshot or GIF of your UI here!)*
+![8-Bit CPU Emulator Interface](image-3.png)
 
 ## 📖 Overview
 This project simulates the core components of a retro 8-bit CPU. The core processing engine (Arithmetic Logic Unit, Fetch-Decode-Execute cycle, and state management) is written in **Java** using **Spring Boot**. The UI is built using **JavaScript, HTML, and Tailwind CSS**, allowing users to write Assembly code in the browser, send it to the backend via a REST API, and visualize the CPU's internal state in real-time.
