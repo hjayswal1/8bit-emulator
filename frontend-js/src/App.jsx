@@ -10,14 +10,15 @@ export default function CpuEmulator() {
   const [cpuState, setCpuState] = useState(emptyState); 
   const [code, setCode] = useState("MOV A, 10\nMOV B, 20\nADD A, B\nHLT");
 
-  const executeCode = async (isStep = false) => {
+  const executeCode = async (isStep = false, isReset = false) => {
     try {
       const response = await fetch("http://localhost:8080/api/cpu/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           instructions: code, 
-          stepMode: isStep 
+          stepMode: isStep,
+          reset: isReset
         })
       });
       
@@ -49,13 +50,13 @@ export default function CpuEmulator() {
           8-BIT CORE <span className="text-gray-500 text-sm">v1.0</span>
         </h1>
         <div className="flex gap-4">
-          <button onClick={() => executeCode(false)} className="px-6 py-2 bg-green-900/40 text-green-400 border border-green-700 rounded hover:bg-green-800/60 transition shadow-[0_0_10px_rgba(74,222,128,0.2)]">
+          <button onClick={() => executeCode(false, false)} className="px-6 py-2 bg-green-900/40 text-green-400 border border-green-700 rounded hover:bg-green-800/60 transition shadow-[0_0_10px_rgba(74,222,128,0.2)]">
             ▶ RUN
           </button>
-          <button onClick={() => executeCode(true)} className="px-6 py-2 bg-yellow-900/40 text-yellow-400 border border-yellow-700 rounded hover:bg-yellow-800/60 transition">
+          <button onClick={() => executeCode(true, false)} className="px-6 py-2 bg-yellow-900/40 text-yellow-400 border border-yellow-700 rounded hover:bg-yellow-800/60 transition">
             ⏭ STEP
           </button>
-          <button onClick={() => setCpuState(emptyState)} className="px-6 py-2 bg-red-900/40 text-red-400 border border-red-700 rounded hover:bg-red-800/60 transition">
+          <button onClick={() => executeCode(false, true)} className="px-6 py-2 bg-red-900/40 text-red-400 border border-red-700 rounded hover:bg-red-800/60 transition">
             ⏹ RESET
           </button>
         </div>

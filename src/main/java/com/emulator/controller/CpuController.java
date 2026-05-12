@@ -9,29 +9,59 @@ import java.util.Map;
 @CrossOrigin(origins = "*") 
 public class CpuController {
 
+    // State variables to remember execution between STEP clicks
+    private Map<String, Integer> regs = new HashMap<>();
+    private int pc = 0;
+    private int flagZ = 0;
+    private int flagS = 0;
+    private int flagC = 0;
+    private int flagO = 0;
+    private Map<String, String> memory = new HashMap<>();
+    private String lastInstructions = "";
+
+    public CpuController() {
+        resetState();
+    }
+
+    private void resetState() {
+        regs.put("A", 0); regs.put("B", 0); regs.put("C", 0); regs.put("D", 0);
+        pc = 0;
+        flagZ = 0; flagS = 0; flagC = 0; flagO = 0;
+        memory.clear();
+    }
+
     @PostMapping("/execute")
     public Map<String, Object> executeInstructions(@RequestBody Map<String, Object> payload) {
         String instructions = (String) payload.getOrDefault("instructions", "");
         boolean stepMode = (Boolean) payload.getOrDefault("stepMode", false);
+        boolean resetRequested = (Boolean) payload.getOrDefault("reset", false);
 
         System.out.println("Received Assembly: \n" + instructions);
         
-        Map<String, Integer> regs = new HashMap<>();
-        regs.put("A", 0); regs.put("B", 0); regs.put("C", 0); regs.put("D", 0);
-        int pc = 0;
-
-        // Initialize Status Flags
-        int flagZ = 0; // Zero Flag
-        int flagS = 0; // Sign Flag
-        int flagC = 0; // Carry Flag
-        int flagO = 0; // Overflow Flag
-
-        Map<String, String> memory = new HashMap<>();
-
         String[] lines = instructions.split("\\r?\\n");
-        while (pc < lines.length) {
+        
+        // Reset state if RESET button clicked, code changed, or we already finished executing
+        if (resetRequested || !instructions.equals(lastInstructions) || pc >= lines.length) {
+            resetState();
+            lastInstructions = instructions;
+            
+            // If it was just a reset request, return the cleared state immediately
+            if (resetRequested) {
+                return buildResponse();
+            }
+        }
+
+        // Determine how many instructions to run (1 for STEP, all remaining for RUN)
+        int linesToExecute = stepMode ? 1 : lines.length - pc;
+
+        for (int i = 0; i < linesToExecute && pc < lines.length; ) {
             String line = lines[pc].trim().toUpperCase();
-            if (line.isEmpty() || line.startsWith(";")) { pc++; continue; }
+            
+            // Skip empty lines and comments, don't count them as a step
+            if (line.isEmpty() || line.startsWith(";")) { 
+                pc++; 
+                continue; 
+            }
             
             memory.put(String.format("0x%04X", pc), line.split(" ")[0]);
             
@@ -87,8 +117,13 @@ public class CpuController {
                 }
             }
             pc++;
+            i++; // Increment executed instructions count
         }
 
+        return buildResponse();
+    }
+
+    private Map<String, Object> buildResponse() {
         Map<String, Object> response = new HashMap<>();
         Map<String, String> outRegs = new HashMap<>();
         for (String reg : regs.keySet()) { outRegs.put(reg, String.format("0x%02X", regs.get(reg))); }

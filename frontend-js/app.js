@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMemory();
 
     // Send instructions to the Java Backend
-    async function sendCodeToBackend(code, isStep = false) {
+    async function sendCodeToBackend(code, isStep = false, isReset = false) {
         try {
             // UPDATE THIS URL to point to your Java Spring Boot / Servlet controller
             const response = await fetch("http://localhost:8080/api/cpu/execute", {
@@ -35,7 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
                     instructions: code, 
-                    stepMode: isStep 
+                    stepMode: isStep,
+                    reset: isReset
                 })
             });
             
@@ -77,9 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Attach event listeners
-    runBtn.addEventListener("click", () => sendCodeToBackend(codeEditor.value, false));
-    stepBtn.addEventListener("click", () => sendCodeToBackend(codeEditor.value, true));
-    resetBtn.addEventListener("click", () => {
-        updateUI({ registers: {}, flags: "Z=0 S=0 C=0 O=0", memory: {} }); // Reset UI visual values
-    });
+    runBtn.addEventListener("click", () => sendCodeToBackend(codeEditor.value, false, false));
+    stepBtn.addEventListener("click", () => sendCodeToBackend(codeEditor.value, true, false));
+    resetBtn.addEventListener("click", () => sendCodeToBackend(codeEditor.value, false, true));
 });
